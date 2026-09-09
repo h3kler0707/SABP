@@ -1,17 +1,4 @@
-"""
-Core Block Maker logic.
 
-Responsibility (and ONLY this):
-  1. For each maintenance request, find a feasible existing block.
-  2. If found, merge the request into that block.
-  3. If not found, create a new block for it.
-
-No criticality scoring, no prioritization, no optimization/OR-Tools,
-no ML. Matching is deterministic: the first feasible block found (in
-existing-block order) is used. This keeps behaviour fully predictable
-and auditable, which is what a downstream optimization module needs
-to build on top of.
-"""
 
 from __future__ import annotations
 
@@ -62,12 +49,7 @@ def create_new_block(
     calendar: PlanningCalendar,
     existing_block_ids: set,
 ) -> Block:
-    """
-    Creates a brand-new block for a request that doesn't fit anywhere.
-    The new block's window is clamped to the request's own allowable
-    window, bounded by the planning period, since we have no other
-    scheduling signal to place it more precisely at this stage.
-    """
+   
     block_start = max(request.earliest_start, calendar.start_date)
     block_end = min(request.latest_end, calendar.end_date)
 
@@ -93,11 +75,7 @@ def process_requests(
     existing_blocks: List[Block],
     calendar: PlanningCalendar,
 ) -> Tuple[List[Block], List[UnplacedRequest]]:
-    """
-    Runs the full match -> merge / create flow for every request, in order.
-    Returns the resulting set of blocks (existing, updated in place, plus
-    any newly created ones) and any requests that could not be placed.
-    """
+   
     blocks: List[Block] = list(existing_blocks)
     existing_block_ids = {b.block_id for b in blocks}
     unplaced: List[UnplacedRequest] = []
